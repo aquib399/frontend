@@ -36,15 +36,15 @@ export function createMeeting({ params }: { params: Record<string, string> }) {
 
 export function getSingleMeeting({
   params,
-  meeting_id,
+  slug,
 }: {
   params: Record<string, string>;
-  meeting_id: string;
+  slug: string;
 }) {
   const res = useApiRequest({
-    method: "POST",
-    endpoint: apiEndpoints.meetings.getSingleMeeting(meeting_id),
-    queryKey: ["meetings", "getSingle", meeting_id],
+    method: "GET",
+    endpoint: apiEndpoints.meetings.getSingleMeeting(slug),
+    queryKey: ["meetings", "getSingle", slug],
     params,
   });
   return res;

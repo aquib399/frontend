@@ -2,7 +2,7 @@ const meetings = {
   base: "/api/meeting",
   create: "/api/meeting/create-meeting",
   invited: "/api/meeting/invited",
-  getSingleMeeting: (id: string) => `/api/meeting/${id}`,
+  getSingleMeeting: (slug: string) => `/api/meeting/${slug}`,
 };
 
 const users = {
