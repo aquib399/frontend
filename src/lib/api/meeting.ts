@@ -35,6 +35,19 @@ export function createMeeting({ params }: { params: Record<string, string> }) {
   return res;
 }
 
+
+export function inviteUserToMeeting({ params,meeting_id }: { params: Record<string, string>,meeting_id: string }) {
+  const res = useApiRequest({
+    exact: false,
+    method: "POST",
+    endpoint: apiEndpoints.meetings.invite(meeting_id),
+    queryKey: ["meetings", "invite", meeting_id],
+    params,
+  });
+  return res;
+}
+
+
 export function getSingleMeeting({
   params,
   slug,

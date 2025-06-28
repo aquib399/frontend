@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/useDebounce";
-import { createMeeting } from "@/lib/api/meeting";
+import { createMeeting, inviteUserToMeeting } from "@/lib/api/meeting";
 import { listUsers } from "@/lib/api/user";
 import { useSession } from "@/lib/auth-client";
 import type { Meeting } from "@/utils/types";
@@ -39,7 +39,6 @@ export default function Dashboard() {
   });
 
   const [createdMeeting, setCreatedMeeting] = useState<Meeting | null>(null);
-
   const handleCreateMeeting = async () => {
     if (!mutateAsync) return;
 
@@ -188,6 +187,10 @@ export default function Dashboard() {
 
 function NewMeetingCard({ meeting }: { meeting: Meeting }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const { mutateAsync } = inviteUserToMeeting({
+    meeting_id: meeting.id,
+    params: {},
+  });
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const debouncedSearchTerm = useDebounce(searchTerm.trim().toLowerCase());
 
@@ -276,7 +279,12 @@ function NewMeetingCard({ meeting }: { meeting: Meeting }) {
             isPending={isPending}
             isError={isError}
             isSuccess={isSuccess}
-            onSelect={(user: User) => {
+            onSelect={async (user: User) => {
+              if (!mutateAsync) return;
+              const response = await mutateAsync({
+                email: user.email,
+              });
+              const data = response.data;
               setSelectedUser(user);
             }}
           />
