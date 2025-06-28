@@ -294,7 +294,7 @@ function NewMeetingCard({ meeting }: { meeting: Meeting }) {
 
         {/* Actions */}
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href={`/dashboard/meeting/${meeting.slug}`} className="flex-1">
+          <Link href={`/meeting/${meeting.slug}`} className="flex-1">
             <Button className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600">
               <ExternalLink className="mr-2 h-4 w-4" />
               Join Meeting
