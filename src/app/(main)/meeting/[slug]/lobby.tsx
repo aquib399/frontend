@@ -232,10 +232,10 @@ export default function Lobby({ meetingSlug }: { meetingSlug: string }) {
                   autoPlay
                   muted
                   playsInline
-                  className="h-full w-full rounded-xl object-cover aspect-video -scale-x-100"
+                  className="aspect-video h-full w-full -scale-x-100 rounded-xl object-cover"
                 />
               ) : (
-                <div className="flex w-full aspect-video flex-col items-center justify-center rounded-xl bg-slate-700 text-slate-400">
+                <div className="flex aspect-video w-full flex-col items-center justify-center rounded-xl bg-slate-700 text-slate-400">
                   <CameraOff className="h-12 w-12" />
                   <p className="mt-2 text-sm">Camera is off</p>
                 </div>
