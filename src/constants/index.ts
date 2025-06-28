@@ -71,6 +71,8 @@ export const SOCKET_EVENTS = {
   
   // Media
   MEDIA_STATE_CHANGE: 'media-state-change',
+  REQUEST_MEDIA_STATE: 'request-media-state',
+  MEDIA_STATE_RESPONSE: 'media-state-response',
   END_CALL: 'end-call',
   CALL_ENDED: 'call-ended',
 } as const;

@@ -30,6 +30,7 @@ import {
   ExternalLink,
   Loader2,
 } from "lucide-react";
+import RoomJoin from "@/components/RoomJoin";
 
 export default function Dashboard() {
   const session = useSession();
@@ -183,131 +184,130 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
+  function NewMeetingCard({ meeting }: { meeting: Meeting }) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const { mutateAsync } = inviteUserToMeeting({
+      meeting_id: meeting.id,
+      params: {},
+    });
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const debouncedSearchTerm = useDebounce(searchTerm.trim().toLowerCase());
 
-function NewMeetingCard({ meeting }: { meeting: Meeting }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const { mutateAsync } = inviteUserToMeeting({
-    meeting_id: meeting.id,
-    params: {},
-  });
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const debouncedSearchTerm = useDebounce(searchTerm.trim().toLowerCase());
+    const { data, isError, isPending, isSuccess } = listUsers({
+      params: { search: debouncedSearchTerm },
+    });
 
-  const { data, isError, isPending, isSuccess } = listUsers({
-    params: { search: debouncedSearchTerm },
-  });
+    const users = (data?.users as User[]) || [];
+    const options: OptionsType = Array.isArray(users)
+      ? users.map((user) => ({
+          label: `${user.name} - ${user.email}`,
+          data: user,
+        }))
+      : [];
 
-  const users = (data?.users as User[]) || [];
-  const options: OptionsType = Array.isArray(users)
-    ? users.map((user) => ({
-        label: `${user.name} - ${user.email}`,
-        data: user,
-      }))
-    : [];
-
-  return (
-    <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-      <CardHeader>
-        <div className="flex items-center space-x-2">
-          <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900">
-            <Video className="h-5 w-5 text-green-600 dark:text-green-400" />
-          </div>
-          <div>
-            <CardTitle className="text-green-800 dark:text-green-200">
-              Meeting Created Successfully!
-            </CardTitle>
-            <CardDescription className="text-green-600 dark:text-green-400">
-              Your meeting is ready. Invite participants and start
-              collaborating.
-            </CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Meeting Details */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-green-800 dark:text-green-200">
-              Meeting Title
-            </p>
-            <p className="text-sm text-green-700 dark:text-green-300">
-              {meeting.title}
-            </p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-green-800 dark:text-green-200">
-              Meeting ID
-            </p>
-            <p className="font-mono text-sm text-green-700 dark:text-green-300">
-              {meeting.slug}
-            </p>
-          </div>
-        </div>
-
-        <hr className="bg-green-200 dark:bg-green-800" />
-
-        {/* Invite Section */}
-        <div className="space-y-4">
+    return (
+      <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+        <CardHeader>
           <div className="flex items-center space-x-2">
-            <UserPlus className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <h3 className="font-medium text-green-800 dark:text-green-200">
-              Invite Participants
-            </h3>
+            <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900">
+              <Video className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <CardTitle className="text-green-800 dark:text-green-200">
+                Meeting Created Successfully!
+              </CardTitle>
+              <CardDescription className="text-green-600 dark:text-green-400">
+                Your meeting is ready. Invite participants and start
+                collaborating.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Meeting Details */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                Meeting Title
+              </p>
+              <p className="text-sm text-green-700 dark:text-green-300">
+                {meeting.title}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                Meeting ID
+              </p>
+              <p className="font-mono text-sm text-green-700 dark:text-green-300">
+                {meeting.slug}
+              </p>
+            </div>
           </div>
 
-          {selectedUser && (
-            <div className="rounded-lg border border-green-200 bg-white p-3 dark:border-green-800 dark:bg-slate-800">
-              <div className="flex items-center space-x-3">
-                <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900">
-                  <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="font-medium">{selectedUser.name}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {selectedUser.email}
-                  </p>
+          <hr className="bg-green-200 dark:bg-green-800" />
+
+          {/* Invite Section */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <UserPlus className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <h3 className="font-medium text-green-800 dark:text-green-200">
+                Invite Participants
+              </h3>
+            </div>
+
+            {selectedUser && (
+              <div className="rounded-lg border border-green-200 bg-white p-3 dark:border-green-800 dark:bg-slate-800">
+                <div className="flex items-center space-x-3">
+                  <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900">
+                    <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{selectedUser.name}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {selectedUser.email}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <ComboBox
-            searchTerm={searchTerm}
-            options={options}
-            setSearchTerm={setSearchTerm}
-            isPending={isPending}
-            isError={isError}
-            isSuccess={isSuccess}
-            onSelect={async (user: User) => {
-              if (!mutateAsync) return;
-              await mutateAsync({
-                email: user.email,
-              });
-              setSelectedUser(user);
-            }}
-          />
-        </div>
+            <ComboBox
+              searchTerm={searchTerm}
+              options={options}
+              setSearchTerm={setSearchTerm}
+              isPending={isPending}
+              isError={isError}
+              isSuccess={isSuccess}
+              onSelect={async (user: User) => {
+                if (!mutateAsync) return;
+                await mutateAsync({
+                  email: user.email,
+                });
+                setSelectedUser(user);
+              }}
+            />
+          </div>
 
-        <hr className="bg-green-200 dark:bg-green-800" />
+          <hr className="bg-green-200 dark:bg-green-800" />
 
-        {/* Actions */}
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href={`/meeting/${meeting.slug}`} className="flex-1">
-            <Button className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Join Meeting
+          {/* Actions */}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href={`/meeting/${meeting.slug}`} className="flex-1">
+              <Button className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Join Meeting
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              className="flex-1 border-green-200 bg-transparent text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-950"
+            >
+              <Clock className="mr-2 h-4 w-4" />
+              Schedule for Later
             </Button>
-          </Link>
-          <Button
-            variant="outline"
-            className="flex-1 border-green-200 bg-transparent text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-300 dark:hover:bg-green-950"
-          >
-            <Clock className="mr-2 h-4 w-4" />
-            Schedule for Later
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 }

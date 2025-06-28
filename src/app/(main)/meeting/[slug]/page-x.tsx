@@ -11,7 +11,8 @@ import {
 } from "@/stores/useAppStore";
 import { useParams, useRouter } from "next/navigation";
 
-export default function Lobbypagev1({meetingId}:{meetingId: string}) {
+const LobbyPage: React.FC = () => {
+  const { meetingId } = useParams<{ meetingId: string }>();
   const navigate = useRouter();
 
   // Zustand store hooks
@@ -79,3 +80,5 @@ export default function Lobbypagev1({meetingId}:{meetingId: string}) {
     </div>
   );
 };
+
+export default LobbyPage;

@@ -1,3 +1,4 @@
+import Lobbypagev1 from "./client";
 import MainComponent from "./client";
 
 export default async function MeetingPage({
@@ -6,5 +7,5 @@ export default async function MeetingPage({
   params: Promise<{ meeting_id: string }>;
 }) {
   const { slug } = (await PendingParams) as unknown as { slug: string };
-  return <MainComponent slug={slug} />;
+  return <Lobbypagev1 meetingId={slug} />;
 }
