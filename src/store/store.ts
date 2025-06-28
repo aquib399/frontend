@@ -10,6 +10,10 @@ type MeetingStore = {
   setIsHost: (isHost: boolean) => void;
   meetingId: string;
   setMeetingId: (meetingId: string) => void;
+  isCameraEnabled: boolean;
+  setIsCameraEnabled: (isCameraEnabled: boolean) => void;
+  isMicrophoneEnabled: boolean;
+  setIsMicrophoneEnabled: (isMicrophoneEnabled: boolean) => void;
 };
 
 const useMeetingStore = create<MeetingStore>((set) => ({
@@ -23,6 +27,10 @@ const useMeetingStore = create<MeetingStore>((set) => ({
   setIsHost: (isHost: boolean) => set({ isHost }),
   meetingId: "",
   setMeetingId: (meetingId: string) => set({ meetingId }),
+  isCameraEnabled: true,
+  setIsCameraEnabled: (isCameraEnabled: boolean) => set({ isCameraEnabled }),
+  isMicrophoneEnabled: true,
+  setIsMicrophoneEnabled: (isMicrophoneEnabled: boolean) => set({ isMicrophoneEnabled })
 }));
 
 export default useMeetingStore;

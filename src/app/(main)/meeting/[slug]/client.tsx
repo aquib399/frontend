@@ -4,9 +4,9 @@ import { getSingleMeeting } from "@/lib/api/meeting";
 import { useSession } from "@/lib/auth-client";
 import { notFound } from "next/navigation";
 import { Meeting } from "@/utils/types";
-import { useState } from "react";
-import Lobby from "@/components/Meeting/Lobby";
+import Lobby from "./lobby";
 import useMeetingStore from "@/store/store";
+import Room from "./room";
 
 export default function MainComponent({ slug }: { slug: string }) {
   const { data } = useSession();
@@ -24,4 +24,8 @@ export default function MainComponent({ slug }: { slug: string }) {
   }
 
   const { isJoined } = useMeetingStore();
+  if (isJoined) {
+    return <Room />;
+  }
+  return <Lobby meetingSlug={slug} />;
 }
