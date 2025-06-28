@@ -59,11 +59,14 @@ export default function Homepage() {
                 Log In
               </Link>
             </Button>
+
             <Button
               size="lg"
               className="rounded-full bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 px-8 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:from-cyan-400 hover:via-blue-500 hover:to-purple-500"
             >
-              Get Started
+              <Link href={"/dashboard"} passHref>
+                Dashboard
+              </Link>
             </Button>
           </nav>
 

@@ -281,10 +281,9 @@ function NewMeetingCard({ meeting }: { meeting: Meeting }) {
             isSuccess={isSuccess}
             onSelect={async (user: User) => {
               if (!mutateAsync) return;
-              const response = await mutateAsync({
+              await mutateAsync({
                 email: user.email,
               });
-              const data = response.data;
               setSelectedUser(user);
             }}
           />

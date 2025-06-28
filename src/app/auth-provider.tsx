@@ -1,7 +1,7 @@
 "use client";
 
+import { redirect, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 interface AuthProviderProps {
@@ -11,14 +11,14 @@ interface AuthProviderProps {
 
 export default function AuthProvider({
   children,
-  requireAuth = false,
+  requireAuth = true,
 }: AuthProviderProps) {
   const { data: session, isPending, error } = useSession();
   const router = useRouter();
 
   useEffect(() => {
     if (!isPending && requireAuth && !session?.user) {
-      router.push("/login");
+      redirect("/login");
     }
   }, [session, isPending, requireAuth, router]);
 
@@ -41,7 +41,7 @@ export default function AuthProvider({
   }
 
   if (requireAuth && !session?.user) {
-    return null; // Will redirect to login
+    return null;
   }
 
   return <>{children}</>;

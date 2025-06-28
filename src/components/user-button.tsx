@@ -1,6 +1,7 @@
 "use client";
 
 import { Dot, LogOut, Monitor, Moon, Sun, UserIcon } from "lucide-react";
+import { signOut, useSession } from "@/lib/auth-client";
 import { useTheme } from "next-themes";
 import UserAvatar from "./user-avatar";
 import Link from "next/link";
@@ -16,16 +17,14 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "./ui/dropdown-menu";
-import { useSession } from "@/lib/auth-client";
 
 export function UserButton({ className }: { className?: string }) {
   const { data } = useSession();
   const user = data?.user;
   if (!user || !user.image) {
-    return null; // or a fallback UI
+    return null;
   }
   const { theme, setTheme } = useTheme();
-  console.log("Current theme:", theme);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={className}>
@@ -83,7 +82,12 @@ export function UserButton({ className }: { className?: string }) {
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => {}} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => {
+            signOut();
+          }}
+          className="cursor-pointer"
+        >
           <LogOut className="mr-2 size-4" />
           Sign Out
         </DropdownMenuItem>
