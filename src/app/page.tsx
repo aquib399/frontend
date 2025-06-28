@@ -55,7 +55,9 @@ export default function Homepage() {
               size="lg"
               className="rounded-full border-gray-600 bg-transparent text-gray-300 transition-all duration-300 hover:border-cyan-400 hover:bg-gray-800"
             >
-              Sign In
+              <Link href={"/login"} passHref>
+                Log In
+              </Link>
             </Button>
             <Button
               size="lg"
@@ -258,7 +260,6 @@ export default function Homepage() {
 
       {/* CTA Section */}
       <section className="relative overflow-hidden py-24 backdrop-blur-sm">
-
         <div className="relative z-10 container mx-auto px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center text-white">
             <h2 className="mb-6 text-4xl font-bold lg:text-5xl">

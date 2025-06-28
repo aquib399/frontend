@@ -1,10 +1,11 @@
+"use client";
 import useApiRequest from "@/utils/fetch-controller";
 import { apiEndpoints } from "./endpoints";
 
 export function listMeetings({ params }: { params: Record<string, string> }) {
   const res = useApiRequest({
     endpoint: apiEndpoints.meetings.base,
-    queryKey: ["meetings", "list"],
+    queryKey: ["meetings", "list", "base"],
     params,
   });
   return res;
@@ -28,7 +29,7 @@ export function createMeeting({ params }: { params: Record<string, string> }) {
     exact: false,
     method: "POST",
     endpoint: apiEndpoints.meetings.create,
-    queryKey: ["meetings", "create"],
+    queryKey: ["meetings", "list"],
     params,
   });
   return res;
@@ -44,7 +45,7 @@ export function getSingleMeeting({
   const res = useApiRequest({
     method: "GET",
     endpoint: apiEndpoints.meetings.getSingleMeeting(slug),
-    queryKey: ["meetings", "getSingle", slug],
+    queryKey: ["meetings", "single", slug],
     params,
   });
   return res;

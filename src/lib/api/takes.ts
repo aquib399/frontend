@@ -1,3 +1,5 @@
+"use client";
+
 import useApiRequest from "@/utils/fetch-controller";
 import { apiEndpoints } from "./endpoints";
 

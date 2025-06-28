@@ -13,11 +13,9 @@ export default function LoginPage() {
             Welcome back! Please sign in to continue.
           </p>
         </div>
-        <div className="mt-8 space-y-6">
-          <div>
-            <GoogleLogin />
-            <GithubLogin />
-          </div>
+        <div className="flex w-full gap-5">
+          <GoogleLogin />
+          <GithubLogin />
         </div>
       </div>
     </div>

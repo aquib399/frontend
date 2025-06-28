@@ -7,7 +7,7 @@ export default function Dashboard() {
   return (
     <div className="mx-auto max-w-7xl space-y-10 p-5">
       <div className="bg-blue-100 p-10">
-        MEETINGS:
+        MEETINGS ({meetings?.meetings?.length}):
         <pre>{JSON.stringify(meetings, null, 2)}</pre>
       </div>
     </div>
