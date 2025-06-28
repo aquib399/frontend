@@ -1,3 +1,4 @@
+import GithubLogin from "@/components/login/github";
 import GoogleLogin from "@/components/login/google";
 
 export default function LoginPage() {
@@ -15,6 +16,7 @@ export default function LoginPage() {
         <div className="mt-8 space-y-6">
           <div>
             <GoogleLogin />
+            <GithubLogin />
           </div>
         </div>
       </div>
