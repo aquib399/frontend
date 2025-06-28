@@ -52,7 +52,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="bg-background min-h-screen bg-gradient-to-br">
       <div className="mx-auto max-w-7xl space-y-8 p-6">
         {/* Header */}
         <div className="space-y-2">

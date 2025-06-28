@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -84,7 +85,6 @@ export default function ComboBox({
           spaceAbove > maxDropdownHeight + padding;
 
         if (shouldPlaceAbove) {
-          // Position initially, then adjust after dropdown renders
           setDropdownPosition({
             top: rect.top + window.scrollY - maxDropdownHeight - 2.5,
             left: rect.left + window.scrollX,
@@ -132,7 +132,6 @@ export default function ComboBox({
       }
 
       return () => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         let parentElement = inputRef.current?.parentElement;
         while (parentElement) {
           parentElement.removeEventListener(
@@ -160,14 +159,7 @@ export default function ComboBox({
         top: rect.top + window.scrollY - dropdownHeight - 2.5,
       }));
     }
-  }, [
-    isOpen,
-    dropdownPosition.isAbove,
-    options,
-    filteredOptions,
-    isPending,
-    isError,
-  ]);
+  }, [isOpen, dropdownPosition.isAbove]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -210,39 +202,36 @@ export default function ComboBox({
   };
 
   const getInputClassName = () => {
-    const baseClasses = `w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition-all ${className}`;
+    const baseClasses = `w-full px-3 py-2 border rounded-[var(--radius)] focus:outline-none focus:ring-2 transition-all ${className}`;
 
     if (isError || (isSuccess && !options?.length)) {
       return cn(
         baseClasses,
-        "border-red-500 focus:ring-red-500 focus:border-red-500",
+        "border-destructive focus:ring-destructive focus:border-destructive",
       );
     }
 
     if (isSuccess) {
       return cn(
         baseClasses,
-        "border-green-500 focus:ring-green-500 focus:border-green-500",
+        "border-primary focus:ring-primary focus:border-primary",
       );
     }
 
     if (isPending) {
       return cn(
         baseClasses,
-        "border-blue-500 focus:ring-blue-500 focus:border-blue-500",
+        "border-primary focus:ring-primary focus:border-primary",
       );
     }
 
-    return cn(
-      baseClasses,
-      "border-gray-300 focus:ring-blue-500 focus:border-blue-500",
-    );
+    return cn(baseClasses, "border-input focus:ring-ring focus:border-ring");
   };
 
   const renderDropdownContent = () => {
     if (isPending) {
       return (
-        <div className="flex items-center gap-2 p-3 text-sm text-blue-600">
+        <div className="text-primary flex items-center gap-2 p-3 text-sm">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading...
         </div>
@@ -251,7 +240,7 @@ export default function ComboBox({
 
     if (isError) {
       return (
-        <div className="flex items-center gap-2 p-3 text-sm text-red-600">
+        <div className="text-destructive flex items-center gap-2 p-3 text-sm">
           <AlertCircle className="h-4 w-4" />
           Error loading results
         </div>
@@ -265,7 +254,7 @@ export default function ComboBox({
         <div
           key={index}
           className={cn(
-            "cursor-pointer p-3 text-sm transition-colors duration-150 hover:bg-gray-100",
+            "text-foreground hover:bg-muted cursor-pointer p-3 text-sm transition-colors duration-150",
             !option.label && "cursor-not-allowed opacity-60",
           )}
           onClick={() => option.label && handleSelect(option)}
@@ -276,7 +265,7 @@ export default function ComboBox({
     }
 
     return (
-      <div className="flex items-center gap-2 p-3 text-sm text-gray-500">
+      <div className="text-muted-foreground flex items-center gap-2 p-3 text-sm">
         <Search className="h-4 w-4" />
         No results found
       </div>
@@ -287,7 +276,7 @@ export default function ComboBox({
     <div
       ref={dropdownRef}
       className={cn(
-        "absolute z-50 max-h-60 overflow-y-auto rounded-md border border-gray-200 bg-white shadow-lg",
+        "border-border bg-popover text-popover-foreground absolute z-50 max-h-60 overflow-y-auto rounded-[var(--radius)] border shadow-lg",
         dropdownPosition.isAbove ? "mb-[2.5px]" : "mt-[2.5px]",
       )}
       style={{
