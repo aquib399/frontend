@@ -26,10 +26,12 @@ export default function Lobbypagev1({ meetingId }: { meetingId: string }) {
   const lobbyConfig = useLobbyConfig();
 
   const meeting = meetingRes?.data?.meeting as Meeting;
-  if (![meeting.guestId, meeting.hostId].includes(userId)) {
-    // er is not a guest or host of the meeting, redirect to home
-    navigate.push("/dashboard");
-    return null;
+  if (meeting && !meetingRes.isPending && meetingRes.isSuccess) {
+    if (![meeting?.guestId, meeting?.hostId].includes(userId)) {
+      // er is not a guest or host of the meeting, redirect to home
+      navigate.push("/dashboard");
+      return null;
+    }
   }
   // Store actions
   const {
