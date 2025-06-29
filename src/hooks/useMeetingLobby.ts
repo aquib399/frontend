@@ -108,6 +108,7 @@ export const useMeetingLobby = () => {
       setError('Failed to access selected devices.');
       setPreviewStream(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCamera, selectedMicrophone]);
 
   // Update preview when devices change (not when toggles change)

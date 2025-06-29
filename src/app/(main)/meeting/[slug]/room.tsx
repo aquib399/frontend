@@ -416,6 +416,7 @@ export default function Room() {
       localAudioStream.current?.getTracks().forEach(track => track.stop());
       peerRef.current?.close();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, meetingId, cameraId, microphoneId, isCameraEnabled, isMicrophoneEnabled]);
 
   return (
