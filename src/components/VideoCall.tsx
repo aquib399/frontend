@@ -63,10 +63,10 @@ const VideoCall: React.FC<VideoCallProps> = ({
   const takeNumber = useRef(0);
   const uploadCounterRef = useRef(0);
   const [recordingStatus, setRecordingStatus] = useState(false);
-  const [localStreamv1, setLocalStream] = useState<MediaStream | null>(null);
+  const [localStreamv1, setLocalStreamV1] = useState<MediaStream | null>(null);
   useEffect(() => {
-    if (!localStream) {
-      setLocalStream(localStream);
+    if (localStream) {
+      setLocalStreamV1(localStream);
     }
   }, [localStream]);
   async function uploadChunk(task: ChunkTask): Promise<boolean> {
@@ -346,7 +346,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
                     key={
                       isRemoteScreenSharing ? "remote-screen" : "local-screen"
                     }
-                    stream={isRemoteScreenSharing ? remoteStream : localStreamv1}
+                    stream={isRemoteScreenSharing ? remoteStream : localStream}
                     isLocal={!isRemoteScreenSharing}
                     isCameraOn={
                       isRemoteScreenSharing ? isRemoteCameraOn : isCameraOn
@@ -371,7 +371,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
                   <div className="bg-cardborder-2 h-40 w-56 overflow-hidden rounded-xl border-gray-600 shadow-lg transition-all duration-300 hover:border-gray-500">
                     <VideoStream
                       key="local-thumbnail"
-                      stream={localStreamv1}
+                      stream={localStream}
                       isLocal={true}
                       isCameraOn={isCameraOn}
                       isScreenSharing={isScreenSharing}
@@ -422,7 +422,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
                   <div className="bg-card relative aspect-[16/19] max-h-[650px] w-full overflow-hidden rounded-2xl border-2 border-gray-700 shadow-xl">
                     <VideoStream
                       key="local-main"
-                      stream={localStreamv1}
+                      stream={localStream}
                       isLocal={true}
                       isMuted={isMuted}
                       isCameraOn={isCameraOn}
@@ -439,7 +439,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
                   <div className="bg-card border-border relative aspect-[16/9] max-h-[650px] w-full overflow-hidden rounded-2xl border-2 shadow-xl">
                     <VideoStream
                       key="local-solo"
-                      stream={localStreamv1}
+                      stream={localStream}
                       isLocal={true}
                       isMuted={isMuted}
                       isCameraOn={isCameraOn}
@@ -490,7 +490,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
 
       {/* Debug Overlay - only in development */}
       <DebugOverlay
-        localStream={localStreamv1}
+        localStream={localStream}
         remoteStream={remoteStream}
         isCallActive={isCallActive}
         isCameraOn={isCameraOn}
