@@ -1,6 +1,6 @@
 // Server configuration
 export const SERVER_CONFIG = {
-  SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001",
+  SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL,
 } as const;
 
 // WebRTC configuration
