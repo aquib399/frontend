@@ -70,7 +70,7 @@ export const VideoStream: React.FC<VideoStreamProps> = React.memo(({
           autoPlay
           muted={isLocal}
           playsInline
-          className="w-full h-full object-cover rounded-2xl"
+          className="w-full h-full object-cover rounded-2xl -scale-x-100"
         />
       ) : (
         /* No Stream Placeholder - Only show when no stream */
