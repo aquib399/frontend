@@ -11,6 +11,7 @@ import { SOCKET_EVENTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/constants";
 import { createLogger } from "@/utils/logger";
 import { useAppStore, useConnectedUsers } from "@/stores/useAppStore";
 import { createTake } from "@/lib/api/takes";
+import { headers } from "next/headers";
 
 const logger = createLogger("VideoCall");
 
@@ -73,11 +74,12 @@ const VideoCall: React.FC<VideoCallProps> = ({
         const meetingId = roomId;
         const takeId = takeNumber.current.toString();
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SOCKET_URL}/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
+          `${process.env.NEXT_PUBLIC_API_URL
+          }/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
           {
             method: "POST",
             body: formData,
-          },
+          }
         );
         if (!res.ok) {
           throw new Error(`Upload failed with status ${res.status}`);
