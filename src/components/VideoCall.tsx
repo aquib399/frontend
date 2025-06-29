@@ -10,6 +10,7 @@ import { DebugOverlay } from "./DebugOverlay";
 import { SOCKET_EVENTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/constants";
 import { createLogger } from "@/utils/logger";
 import { useAppStore, useConnectedUsers } from "@/stores/useAppStore";
+import { createTake } from "@/lib/api/takes";
 
 const logger = createLogger("VideoCall");
 
@@ -43,6 +44,180 @@ const VideoCall: React.FC<VideoCallProps> = ({
     toggleCamera,
     toggleScreenShare,
   } = useWebRTC(socket, roomId, deviceConfig);
+  type ChunkTask = {
+    chunk: Blob;
+    type: "video" | "audio";
+    retries: number;
+    index: number;
+  };
+  // const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  // const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const videoRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRecorderRef = useRef<MediaRecorder | null>(null);
+  const videoChunksRef = useRef<Blob[]>([]);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const chunkQueueRef = useRef<ChunkTask[]>([]);
+  const chunkCounterRef = useRef(0);
+  const uploadingRef = useRef(false);
+  const takeNumber = useRef(0);
+  const uploadCounterRef = useRef(0);
+  const [recordingStatus, setRecordingStatus] = useState(false);
+  useEffect(() => {
+    if (localStream) {
+      // const videoStreamTemp = localStream.getVideoTracks()[0];
+      // const audioStreamTemp = localStream.getAudioTracks()[0];
+      // const videoStream = new MediaStream([videoStreamTemp]);
+      // const audioStream = new MediaStream([audioStreamTemp]);
+      // setVideoStream(videoStream);
+      // setAudioStream(audioStream);
+    }
+  }, []);
+
+  async function uploadChunk(task: ChunkTask): Promise<boolean> {
+    const { chunk, type, index } = task;
+    for (; task.retries < 3; task.retries++) {
+      try {
+        const fileName = `${type}_${index}.webm`;
+        const formData = new FormData();
+        formData.append("chunk", chunk);
+        const meetingId = roomId;
+        const takeId = takeNumber.current.toString();
+        const res = await fetch(
+          `http://localhost:4000/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
+        if (!res.ok) {
+          throw new Error(`Upload failed with status ${res.status}`);
+        }
+        const json = await res.json();
+        const presignedUrl = json.presignedUrl;
+        await fetch(presignedUrl, {
+          method: "PUT",
+          body: chunk,
+          headers: {
+            "Content-Type": type === "video" ? "video/webm" : "audio/webm",
+          },
+        });
+        console.log(`Chunk ${index} uploaded successfully.`);
+
+        return true;
+      } catch (error) {
+        console.warn(`Error uploading chunk ${task.index}:`, error);
+      }
+    }
+    return false;
+  }
+  async function processQueue() {
+    if (uploadingRef.current || chunkQueueRef.current.length === 0) return;
+    uploadingRef.current = true;
+
+    while (chunkQueueRef.current.length > 0) {
+      const task = chunkQueueRef.current.shift();
+      if (!task) continue;
+      const success = await uploadChunk(task);
+      if (!success) {
+        console.warn(`Failed to upload chunk ${task.index} after retries.`);
+      } else {
+        uploadCounterRef.current++;
+        // updateUI();
+      }
+    }
+    uploadingRef.current = false;
+    if (chunkQueueRef.current.length > 0) {
+      // If there are still tasks left, process them again
+      processQueue();
+    }
+  }
+  const { mutateAsync } = createTake({
+    meeting_id: roomId,
+    params: {},
+  });
+  const startRecording = async () => {
+    console.log("Starting recording...");
+
+    // console.log(videoStream, audioStream);
+    // if (!videoStream || !audioStream) {
+    //   logger.error("No video or audio stream available for recording");
+    //   return;
+    // }
+    if (!mutateAsync) return;
+
+    const res = await mutateAsync({});
+    const data = res?.data;
+    takeNumber.current = data?.take || 0;
+
+    try {
+      if (!localStream) {
+        logger.error("No local stream available for recording");
+        return;
+      }
+      const videoStream = localStream.getVideoTracks().length
+        ? new MediaStream([localStream.getVideoTracks()[0]])
+        : null;
+      const audioStream = localStream.getAudioTracks().length
+        ? new MediaStream([localStream.getAudioTracks()[0]])
+        : null;
+
+      if (!videoStream) {
+        return logger.error("No video track available for recording");
+      }
+
+      if (!audioStream) {
+        return logger.error("No audio track available for recordings");
+      }
+      const videoRecorder = new MediaRecorder(videoStream, {
+        mimeType: "video/webm; codecs=vp9",
+      });
+
+      const audioRecorder = new MediaRecorder(audioStream, {
+        mimeType: "audio/webm; codecs=opus",
+      });
+      videoChunksRef.current = [];
+      audioChunksRef.current = [];
+
+      videoRecorder.start(5000); // chunk every 1s
+      audioRecorder.start(5000);
+
+      videoRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          videoChunksRef.current.push(event.data);
+          chunkQueueRef.current.push({
+            chunk: event.data,
+            type: "video",
+            retries: 0,
+            index: videoChunksRef.current.length - 1,
+          });
+          chunkCounterRef.current++;
+          processQueue(); // Start processing the queue immediately
+        }
+      };
+      audioRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+          chunkQueueRef.current.push({
+            chunk: event.data,
+            type: "audio",
+            retries: 0,
+            index: audioChunksRef.current.length - 1,
+          });
+          chunkCounterRef.current++;
+          processQueue(); // Start processing the queue immediately
+        }
+      };
+
+      videoRecorderRef.current = videoRecorder;
+      audioRecorderRef.current = audioRecorder;
+      setRecordingStatus(true);
+    } catch (error) {}
+  };
+  const stopRecording = () => {
+    videoRecorderRef.current?.stop();
+    audioRecorderRef.current?.stop();
+    setRecordingStatus(false);
+  };
 
   // Enhanced control functions with notifications
   const handleToggleMute = useCallback(async () => {
@@ -70,10 +245,15 @@ const VideoCall: React.FC<VideoCallProps> = ({
     onLeaveRoom();
   }, [endCall, socket, roomId, onLeaveRoom]);
 
-  const handleCopyRoomId = useCallback(() => {
-  }, []);
+  const handleCopyRoomId = useCallback(() => {}, []);
 
-
+  const toggleRecording = () => {
+    if (recordingStatus) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
   // Socket event handlers
   useEffect(() => {
     if (!socket || !roomId || hasJoinedRef.current) return;
@@ -115,7 +295,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
         hasJoinedRef.current = false;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, roomId]);
 
   // Cleanup when component unmounts
@@ -141,8 +321,6 @@ const VideoCall: React.FC<VideoCallProps> = ({
   return (
     <>
       <div className="bg-background relative flex h-screen flex-col overflow-hidden">
-
-
         {/* Header with glassmorphism effect */}
         <div className="bg-background relative z-10 border-b border-gray-700">
           <CallHeader
@@ -280,6 +458,8 @@ const VideoCall: React.FC<VideoCallProps> = ({
             <div className="flex justify-center">
               <div className="relative">
                 <MediaControls
+                  recordingStatus={recordingStatus}
+                  toggleRecording={toggleRecording}
                   isMuted={isMuted}
                   isCameraOn={isCameraOn}
                   isScreenSharing={isScreenSharing}
@@ -317,8 +497,6 @@ const VideoCall: React.FC<VideoCallProps> = ({
         socket={socket}
         roomId={roomId}
       />
-
-    
     </>
   );
 };

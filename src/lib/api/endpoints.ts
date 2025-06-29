@@ -13,6 +13,8 @@ const users = {
 
 const takes = {
   base: "/api/takes",
+  create: (meeting_id:string)=>`/api/takes/create/${meeting_id}`,
+
   getSingleTake: (id: string) => `/api/takes/${id}`,
 };
 

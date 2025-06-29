@@ -18,11 +18,17 @@ export function listTakes({ params }: { params: Record<string, string> }) {
   return res;
 }
 
-export function createTake({ params }: { params: Record<string, string> }) {
+export function createTake({
+  params,
+  meeting_id,
+}: {
+  params: Record<string, string>;
+  meeting_id: string;
+}) {
   const res = useApiRequest({
     exact: false,
     method: "POST",
-    endpoint: apiEndpoints.takes.base,
+    endpoint: apiEndpoints.takes.create(meeting_id),
     queryKey: ["takes", "create"],
     params,
   });

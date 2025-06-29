@@ -62,7 +62,7 @@ const LobbyPreview = memo(
             autoPlay
             muted
             playsInline
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-full -scale-x-100"
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full">

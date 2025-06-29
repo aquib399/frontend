@@ -10,6 +10,7 @@ import {
   useLobbyConfig,
 } from "@/stores/useAppStore";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 
 export default function Lobbypagev1({meetingId}:{meetingId: string}) {
   const navigate = useRouter();
@@ -17,7 +18,7 @@ export default function Lobbypagev1({meetingId}:{meetingId: string}) {
   // Zustand store hooks
   const currentView = useCurrentView();
   const currentRoom = useCurrentRoom();
-  const userId = useUserId();
+  const userId = useSession().data?.user.id  || "N/A" ;
   const lobbyConfig = useLobbyConfig();
 
   // Store actions
