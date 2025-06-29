@@ -64,6 +64,11 @@ const VideoCall: React.FC<VideoCallProps> = ({
   const uploadCounterRef = useRef(0);
   const [recordingStatus, setRecordingStatus] = useState(false);
   const [localStreamv1, setLocalStreamV1] = useState<MediaStream | null>(localStream);
+  
+  // Upload progress indicators
+  const [uploadedChunks, setUploadedChunks] = useState(0);
+  const [totalChunks, setTotalChunks] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   useEffect(() => {
     if (localStream) {
       setLocalStreamV1(localStream);
@@ -108,6 +113,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
   async function processQueue() {
     if (uploadingRef.current || chunkQueueRef.current.length === 0) return;
     uploadingRef.current = true;
+    setIsUploading(true);
 
     while (chunkQueueRef.current.length > 0) {
       const task = chunkQueueRef.current.shift();
@@ -117,10 +123,12 @@ const VideoCall: React.FC<VideoCallProps> = ({
         console.warn(`Failed to upload chunk ${task.index} after retries.`);
       } else {
         uploadCounterRef.current++;
-        // updateUI();
+        setUploadedChunks(uploadCounterRef.current);
       }
     }
     uploadingRef.current = false;
+    setIsUploading(false);
+    
     if (chunkQueueRef.current.length > 0) {
       // If there are still tasks left, process them again
       processQueue();
@@ -132,6 +140,13 @@ const VideoCall: React.FC<VideoCallProps> = ({
   });
   const startRecording = async () => {
     console.log("Starting recording...");
+
+    // Reset upload progress indicators
+    uploadCounterRef.current = 0;
+    chunkCounterRef.current = 0;
+    setUploadedChunks(0);
+    setTotalChunks(0);
+    setIsUploading(false);
 
     // console.log(videoStream, audioStream);
     // if (!videoStream || !audioStream) {
@@ -181,6 +196,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
             index: videoChunksRef.current.length - 1,
           });
           chunkCounterRef.current++;
+          setTotalChunks(chunkCounterRef.current);
           processQueue(); // Start processing the queue immediately
         }
       };
@@ -194,6 +210,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
             index: audioChunksRef.current.length - 1,
           });
           chunkCounterRef.current++;
+          setTotalChunks(chunkCounterRef.current);
           processQueue(); // Start processing the queue immediately
         }
       };
@@ -331,6 +348,41 @@ const VideoCall: React.FC<VideoCallProps> = ({
             isCallActive={isCallActive}
             onShowRoomInfo={() => setShowRoomInfo(true)}
           />
+          
+          {/* Upload Progress Indicator */}
+          {recordingStatus && (totalChunks > 0 || isUploading) && (
+            <div className="px-4 py-2 bg-gray-800/50 border-t border-gray-700">
+              <div className="flex items-center justify-between text-sm text-gray-300">
+                <div className="flex items-center space-x-4">
+                  <span className="flex items-center">
+                    🎥 Recording
+                    {isUploading && (
+                      <div className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    )}
+                  </span>
+                  <span>
+                    Uploaded: {uploadedChunks} / {totalChunks} chunks
+                  </span>
+                  <span>
+                    Progress: {totalChunks > 0 ? Math.round((uploadedChunks / totalChunks) * 100) : 0}%
+                  </span>
+                  {isUploading && (
+                    <span className="text-blue-400">Uploading...</span>
+                  )}
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-300"
+                    style={{ 
+                      width: `${totalChunks > 0 ? (uploadedChunks / totalChunks) * 100 : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Main Video Area */}
