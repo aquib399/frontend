@@ -27,7 +27,7 @@ export default function Homepage() {
               <Video className="h-6 w-6 text-white" />
             </div>
             <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-2xl font-bold text-transparent">
-              MeetCast
+              Whisp
             </span>
           </div>
 
@@ -272,7 +272,7 @@ export default function Homepage() {
               </span>
             </h2>
             <p className="mb-12 text-xl leading-relaxed text-gray-300">
-              Join thousands of professionals who trust MeetCast for their most
+              Join thousands of professionals who trust whisp for their most
               important conversations and content creation.
             </p>
 
@@ -307,7 +307,7 @@ export default function Homepage() {
                   <Video className="h-6 w-6 text-white" />
                 </div>
                 <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-2xl font-bold text-transparent">
-                  MeetCast
+                  Whips
                 </span>
               </div>
               <p className="text-lg leading-relaxed text-gray-400">
@@ -433,7 +433,7 @@ export default function Homepage() {
 
           <div className="mt-12 border-t border-gray-800 pt-8 text-center">
             <p className="text-lg text-gray-400">
-              &copy; {new Date().getFullYear()} MeetCast. All rights reserved.
+              &copy; {new Date().getFullYear()} Whisp. All rights reserved.
               Built with passion for the future of communication.
             </p>
           </div>
