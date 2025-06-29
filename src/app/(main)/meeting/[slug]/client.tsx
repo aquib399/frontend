@@ -11,16 +11,26 @@ import {
 } from "@/stores/useAppStore";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
+import { getSingleMeeting } from "@/lib/api/meeting";
+import { Meeting } from "@/utils/types";
 
-export default function Lobbypagev1({meetingId}:{meetingId: string}) {
+export default function Lobbypagev1({ meetingId }: { meetingId: string }) {
   const navigate = useRouter();
+
+  const meetingRes = getSingleMeeting({ slug: meetingId, params: {} });
 
   // Zustand store hooks
   const currentView = useCurrentView();
   const currentRoom = useCurrentRoom();
-  const userId = useSession().data?.user.id  || "N/A" ;
+  const userId = useSession().data?.user.id || "N/A";
   const lobbyConfig = useLobbyConfig();
 
+  const meeting = meetingRes?.data?.meeting as Meeting;
+  if (![meeting.guestId, meeting.hostId].includes(userId)) {
+    // er is not a guest or host of the meeting, redirect to home
+    navigate.push("/dashboard");
+    return null;
+  }
   // Store actions
   const {
     setCurrentRoom,
@@ -79,4 +89,4 @@ export default function Lobbypagev1({meetingId}:{meetingId: string}) {
       )}
     </div>
   );
-};
+}
