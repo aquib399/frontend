@@ -63,7 +63,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
   const takeNumber = useRef(0);
   const uploadCounterRef = useRef(0);
   const [recordingStatus, setRecordingStatus] = useState(false);
-  const [localStreamv1, setLocalStreamV1] = useState<MediaStream | null>(null);
+  const [localStreamv1, setLocalStreamV1] = useState<MediaStream | null>(localStream);
   useEffect(() => {
     if (localStream) {
       setLocalStreamV1(localStream);
