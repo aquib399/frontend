@@ -73,7 +73,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
         const meetingId = roomId;
         const takeId = takeNumber.current.toString();
         const res = await fetch(
-          `http://localhost:4000/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
+          `${process.env.NEXT_PUBLIC_SOCKET_URL}/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
           {
             method: "POST",
             body: formData,
