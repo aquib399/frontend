@@ -62,16 +62,6 @@ const VideoCall: React.FC<VideoCallProps> = ({
   const takeNumber = useRef(0);
   const uploadCounterRef = useRef(0);
   const [recordingStatus, setRecordingStatus] = useState(false);
-  useEffect(() => {
-    if (localStream) {
-      // const videoStreamTemp = localStream.getVideoTracks()[0];
-      // const audioStreamTemp = localStream.getAudioTracks()[0];
-      // const videoStream = new MediaStream([videoStreamTemp]);
-      // const audioStream = new MediaStream([audioStreamTemp]);
-      // setVideoStream(videoStream);
-      // setAudioStream(audioStream);
-    }
-  }, []);
 
   async function uploadChunk(task: ChunkTask): Promise<boolean> {
     const { chunk, type, index } = task;
@@ -143,12 +133,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
     //   logger.error("No video or audio stream available for recording");
     //   return;
     // }
-    if (!mutateAsync) return;
-
-    const res = await mutateAsync({});
-    const data = res?.data;
-    takeNumber.current = data?.take || 0;
-
+    console.log("Local stream:", localStream);
     try {
       if (!localStream) {
         logger.error("No local stream available for recording");
@@ -214,6 +199,9 @@ const VideoCall: React.FC<VideoCallProps> = ({
     } catch (error) {}
   };
   const stopRecording = () => {
+    socket.emit("stop-recording", {
+      roomId,
+    });
     videoRecorderRef.current?.stop();
     audioRecorderRef.current?.stop();
     setRecordingStatus(false);
@@ -247,10 +235,16 @@ const VideoCall: React.FC<VideoCallProps> = ({
 
   const handleCopyRoomId = useCallback(() => {}, []);
 
-  const toggleRecording = () => {
+  const toggleRecording = async () => {
     if (recordingStatus) {
       stopRecording();
     } else {
+      if (!mutateAsync) return;
+
+      const res = await mutateAsync({});
+      const data = res?.data;
+      takeNumber.current = data?.take || 0;
+      socket.emit("start-recording", { roomId, takeId: takeNumber.current });
       startRecording();
     }
   };
@@ -282,6 +276,9 @@ const VideoCall: React.FC<VideoCallProps> = ({
     socket.on(SOCKET_EVENTS.USER_JOINED, handleUserJoined);
     socket.on(SOCKET_EVENTS.USER_LEFT, handleUserLeft);
     socket.on(SOCKET_EVENTS.JOIN_ERROR, handleJoinError);
+    socket.on("start-recording", () => {
+      startRecording();
+    });
 
     return () => {
       logger.log("Cleaning up socket listeners and leaving room:", roomId);
