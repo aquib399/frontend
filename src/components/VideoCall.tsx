@@ -74,12 +74,7 @@ const VideoCall: React.FC<VideoCallProps> = ({
         const meetingId = roomId;
         const takeId = takeNumber.current.toString();
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL
-          }/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
-          {
-            method: "POST",
-            body: formData,
-          }
+          `${process.env.NEXT_PUBLIC_API_URL}/api/upload/${meetingId}/${takeId}/${userId}/${fileName}`,
         );
         if (!res.ok) {
           throw new Error(`Upload failed with status ${res.status}`);
