@@ -63,8 +63,10 @@ const VideoCall: React.FC<VideoCallProps> = ({
   const takeNumber = useRef(0);
   const uploadCounterRef = useRef(0);
   const [recordingStatus, setRecordingStatus] = useState(false);
-  const [localStreamv1, setLocalStreamV1] = useState<MediaStream | null>(localStream);
-  
+  const [localStreamv1, setLocalStreamV1] = useState<MediaStream | null>(
+    localStream,
+  );
+
   // Upload progress indicators
   const [uploadedChunks, setUploadedChunks] = useState(0);
   const [totalChunks, setTotalChunks] = useState(0);
@@ -128,10 +130,22 @@ const VideoCall: React.FC<VideoCallProps> = ({
     }
     uploadingRef.current = false;
     setIsUploading(false);
-    
+
     if (chunkQueueRef.current.length > 0) {
       // If there are still tasks left, process them again
       processQueue();
+    } else {
+      if (recordingStatus === false && chunkQueueRef.current.length === 0) {
+        fetch(
+          `https://api.compilo.xyz/api/upload/upload-finished/${roomId}/${takeNumber.current}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+      }
     }
   }
   const { mutateAsync } = createTake({
@@ -348,35 +362,39 @@ const VideoCall: React.FC<VideoCallProps> = ({
             isCallActive={isCallActive}
             onShowRoomInfo={() => setShowRoomInfo(true)}
           />
-          
+
           {/* Upload Progress Indicator */}
           {recordingStatus && (totalChunks > 0 || isUploading) && (
-            <div className="px-4 py-2 bg-gray-800/50 border-t border-gray-700">
+            <div className="border-t border-gray-700 bg-gray-800/50 px-4 py-2">
               <div className="flex items-center justify-between text-sm text-gray-300">
                 <div className="flex items-center space-x-4">
                   <span className="flex items-center">
                     🎥 Recording
                     {isUploading && (
-                      <div className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <div className="ml-2 h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
                     )}
                   </span>
                   <span>
                     Uploaded: {uploadedChunks} / {totalChunks} chunks
                   </span>
                   <span>
-                    Progress: {totalChunks > 0 ? Math.round((uploadedChunks / totalChunks) * 100) : 0}%
+                    Progress:{" "}
+                    {totalChunks > 0
+                      ? Math.round((uploadedChunks / totalChunks) * 100)
+                      : 0}
+                    %
                   </span>
                   {isUploading && (
                     <span className="text-blue-400">Uploading...</span>
                   )}
                 </div>
-                
+
                 {/* Progress Bar */}
-                <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div 
+                <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-700">
+                  <div
                     className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-300"
-                    style={{ 
-                      width: `${totalChunks > 0 ? (uploadedChunks / totalChunks) * 100 : 0}%` 
+                    style={{
+                      width: `${totalChunks > 0 ? (uploadedChunks / totalChunks) * 100 : 0}%`,
                     }}
                   ></div>
                 </div>
